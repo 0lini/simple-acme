@@ -79,6 +79,21 @@ namespace PKISharp.WACS.UnitTests.Tests.InstallationPluginTests
         }
 
         [TestMethod]
+        public void TestResolveRelativeScript()
+        {
+            var resolved = Clients.ScriptClient.ResolveScript("test.ps1");
+            Assert.IsTrue(Path.IsPathRooted(resolved));
+            Assert.AreEqual("test.ps1", Path.GetFileName(resolved));
+        }
+
+        [TestMethod]
+        public void TestResolveAbsoluteScript()
+        {
+            var absolute = Path.Combine(Path.GetTempPath(), "test.ps1");
+            Assert.AreEqual(absolute, Clients.ScriptClient.ResolveScript(absolute));
+        }
+
+        [TestMethod]
         [DataRow("{aaa}", "bbb")]
         [DataRow("{AAA}", "bbb")]
         [DataRow("{AaA}", "bbb")]

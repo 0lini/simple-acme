@@ -1,4 +1,5 @@
 ﻿using ACMESharp.Authorizations;
+using PKISharp.WACS.Clients;
 using PKISharp.WACS.Configuration;
 using PKISharp.WACS.Configuration.Arguments;
 using PKISharp.WACS.Extensions;
@@ -26,7 +27,7 @@ namespace PKISharp.WACS.Plugins.ValidationPlugins.Any
         private ArgumentResult<string?> PrepareScript => arguments.
             GetString<ScriptArguments>(x => x.DnsCreateScript, x => x.ValidationPrepareScript).
             WithLabel("Preparation script").
-            Validate(x => Task.FromResult(x.ValidFile(log)), "invalid file");
+            Validate(x => Task.FromResult(ScriptClient.ResolveScript(x).ValidFile(log)), "invalid file");
 
         private ArgumentResult<string?> PrepareScriptArguments(bool http) => arguments.
             GetString<ScriptArguments>(x => x.DnsCreateScriptArguments, x => x.ValidationPrepareScriptArguments).
@@ -38,7 +39,7 @@ namespace PKISharp.WACS.Plugins.ValidationPlugins.Any
         private ArgumentResult<string?> CleanupScript => arguments.
             GetString<ScriptArguments>(x => x.DnsDeleteScript, x => x.ValidationCleanupScript).
             WithLabel("Cleanup script").
-            Validate(x => Task.FromResult(x.ValidFile(log)), "invalid file");
+            Validate(x => Task.FromResult(ScriptClient.ResolveScript(x).ValidFile(log)), "invalid file");
 
         private ArgumentResult<string?> CleanupScriptArguments(bool http) => arguments.
             GetString<ScriptArguments>(x => x.DnsDeleteScriptArguments, x => x.ValidationCleanupScriptArguments).
