@@ -18,6 +18,7 @@ namespace PKISharp.WACS.Plugins.NotificationPlugins
         private readonly ILogService _log;
         private readonly ScriptClient _client;
         private readonly string _script;
+        private readonly string _scriptPath;
         private readonly string _scriptParameters;
         private readonly string? _computerName;
         private readonly SecretServiceManager _secretServiceManager;
@@ -31,6 +32,7 @@ namespace PKISharp.WACS.Plugins.NotificationPlugins
             _log = log;
             _client = client;
             _script = settings.Notification.Script?.Path ?? "";
+            _scriptPath = settings.Client.ScriptPath;
             _scriptParameters = settings.Notification.Script?.Parameters ?? "";
             _computerName = settings.Notification.ComputerName;
             if (string.IsNullOrEmpty(_computerName))
@@ -55,7 +57,7 @@ namespace PKISharp.WACS.Plugins.NotificationPlugins
                 {
                     return State.DisabledState("No script configured");
                 }
-                if (!_script.ValidFile(_log))
+                if (!ScriptClient.ResolveScript(_script, _scriptPath).ValidFile(_log))
                 {
                     return State.DisabledState("Invalid script configured");
                 }

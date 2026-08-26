@@ -3,6 +3,7 @@ using PKISharp.WACS.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -74,6 +75,24 @@ namespace PKISharp.WACS.Clients
         }
 
         /// <summary>
+        /// Resolve a relative script path against <paramref name="scriptPath"/>.
+        /// Absolute paths are returned unchanged.
+        /// </summary>
+        public static string ResolveScript(string? script, string scriptPath)
+        {
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                return script ?? "";
+            }
+            var expanded = Environment.ExpandEnvironmentVariables(script);
+            if (Path.IsPathRooted(expanded))
+            {
+                return script;
+            }
+            return Path.Combine(scriptPath, expanded);
+        }
+
+        /// <summary>
         /// Start .ps1/.exe/.bat/.sh file
         /// </summary>
         /// <param name="script"></param>
@@ -87,6 +106,7 @@ namespace PKISharp.WACS.Clients
                 logService.Warning("No script configured.");
                 return new ScriptResult() { Success = false };
             }
+            script = ResolveScript(script, settings.Client.ScriptPath);
             if (!script.ValidFile(logService))
             {
                 return new ScriptResult() { Success = false };

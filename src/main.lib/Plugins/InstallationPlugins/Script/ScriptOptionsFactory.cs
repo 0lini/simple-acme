@@ -1,4 +1,5 @@
-﻿using PKISharp.WACS.Configuration;
+﻿using PKISharp.WACS.Clients;
+using PKISharp.WACS.Configuration;
 using PKISharp.WACS.Extensions;
 using PKISharp.WACS.Plugins.Base.Factories;
 using PKISharp.WACS.Plugins.StorePlugins;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PKISharp.WACS.Plugins.InstallationPlugins
 {
-    internal class ScriptOptionsFactory(ILogService log, ArgumentsInputService arguments) : PluginOptionsFactory<ScriptOptions>
+    internal class ScriptOptionsFactory(ILogService log, ISettings settings, ArgumentsInputService arguments) : PluginOptionsFactory<ScriptOptions>
     {
         public override int Order => 100;
 
@@ -22,7 +23,7 @@ namespace PKISharp.WACS.Plugins.InstallationPlugins
                     [".ps1", ".sh"];
                 return arguments.
                     GetString<ScriptArguments>(x => x.Script).
-                    Validate(x => Task.FromResult(x.ValidFile(log)), "invalid path").
+                    Validate(x => Task.FromResult(ScriptClient.ResolveScript(x, settings.Client.ScriptPath).ValidFile(log)), "invalid path").
                     Validate(x => Task.FromResult(validExtensions.Any(e => x!.EndsWith(e))), "invalid extension").
                     Required();
             }

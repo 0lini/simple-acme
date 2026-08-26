@@ -79,6 +79,18 @@ namespace PKISharp.WACS.UnitTests.Tests.InstallationPluginTests
         }
 
         [TestMethod]
+        public void TestResolveScript()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "scripts");
+            Assert.AreEqual(Path.Combine(dir, "a.ps1"), Clients.ScriptClient.ResolveScript("a.ps1", dir));
+            var absolute = Path.Combine(Path.GetTempPath(), "a.ps1");
+            Assert.AreEqual(absolute, Clients.ScriptClient.ResolveScript(absolute, dir));
+            Assert.AreEqual(
+                Path.Combine(new MockSettingsService().Client.ConfigRoot, "scripts"),
+                new MockSettingsService().Client.ScriptPath);
+        }
+
+        [TestMethod]
         [DataRow("{aaa}", "bbb")]
         [DataRow("{AAA}", "bbb")]
         [DataRow("{AaA}", "bbb")]

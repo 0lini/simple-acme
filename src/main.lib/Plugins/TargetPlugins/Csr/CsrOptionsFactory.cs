@@ -1,4 +1,5 @@
-﻿using PKISharp.WACS.Configuration;
+﻿using PKISharp.WACS.Clients;
+using PKISharp.WACS.Configuration;
 using PKISharp.WACS.Extensions;
 using PKISharp.WACS.Plugins.Base.Factories;
 using PKISharp.WACS.Services;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PKISharp.WACS.Plugins.TargetPlugins
 {
-    internal class CsrOptionsFactory(ILogService log, ArgumentsInputService arguments) : PluginOptionsFactory<CsrOptions>
+    internal class CsrOptionsFactory(ILogService log, ISettings settings, ArgumentsInputService arguments) : PluginOptionsFactory<CsrOptions>
     {
         public override int Order => 6;
 
@@ -18,7 +19,7 @@ namespace PKISharp.WACS.Plugins.TargetPlugins
 
         private ArgumentResult<string?> CsrScript => arguments.
             GetString<CsrArguments>(x => x.CsrScript).
-            Validate(x => Task.FromResult(x.ValidFile(log)), "invalid file");
+            Validate(x => Task.FromResult(ScriptClient.ResolveScript(x, settings.Client.ScriptPath).ValidFile(log)), "invalid file");
 
         private ArgumentResult<string?> PkFile => arguments.
             GetString<CsrArguments>(x => x.PkFile).

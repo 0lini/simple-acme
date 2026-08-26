@@ -13,6 +13,7 @@ namespace PKISharp.WACS.Configuration.Settings.Types
         string ClientName { get; }
         string ConfigurationPath { get; }
         string PluginPath { get; }
+        string ScriptPath { get; }
         string LogPath { get; }
         bool? VersionCheck { get; }
     }
@@ -59,6 +60,7 @@ namespace PKISharp.WACS.Configuration.Settings.Types
         public string ClientName => Get(x => x.ClientName) ?? VersionService.DefaultClientName;
         public string ConfigurationPath => Path.Combine(ConfigRoot, root.BaseUri.CleanUri());
         public string PluginPath => Get(x => x.PluginPath) ?? Path.Combine(ConfigRoot, "plugins");
+        public string ScriptPath => Get(x => x.ScriptPath) ?? Path.Combine(ConfigRoot, "scripts");
         public string LogPath {
             get
             {
@@ -106,6 +108,13 @@ namespace PKISharp.WACS.Configuration.Settings.Types
             NullBehaviour = "resolves to <code>%programdata%\\{Client.ClientName}\\plugins</code>",
             Description = "The path where additional plugins can be stored.")]
         public string? PluginPath { get; set; }
+
+        [SettingsValue(
+            Default = "null",
+            SubType = "path",
+            NullBehaviour = "resolves to <code>%programdata%\\{Client.ClientName}\\scripts</code>",
+            Description = "The path used to resolve relative script paths. Absolute paths are unaffected.")]
+        public string? ScriptPath { get; set; }
 
         [SettingsValue(
             Default = "false",
