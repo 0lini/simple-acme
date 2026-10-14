@@ -76,6 +76,7 @@ namespace PKISharp.WACS.UnitTests.Tests.InstallationPluginTests
                     SingleInstance().
                     WithParameter(new TypedParameter(typeof(string[]), commandLine.Split(' ')));
             _ = builder.RegisterType<Mock.Services.UserRoleService>().As<IUserRoleService>().SingleInstance();
+            _ = builder.RegisterType<Clients.ScriptClient>().SingleInstance();
             _ = builder.RegisterType<UnattendedResolver>().As<IResolver>();
             _ = builder.Register(c => c.Resolve<ArgumentsParser>().GetArguments<MainArguments>()!).SingleInstance();
 

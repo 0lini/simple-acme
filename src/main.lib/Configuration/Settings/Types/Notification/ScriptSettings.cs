@@ -38,7 +38,9 @@ namespace PKISharp.WACS.Configuration.Settings.Types.Notification
         [SettingsValue(
             Description = "Path to external script or program to run for notifications. " +
             "Supported extensions: <code>.ps1</code>, <code>.sh</code>, <code>.exe</code>, " +
-            "<code>.bat</code>, <code>.cmd</code> (Windows only).")]
+            "<code>.bat</code>, <code>.cmd</code> (Windows only). " +
+            "A relative path is looked up in the <code>Client.ScriptPath</code> folder, " +
+            "then in the program folder and finally in the current working directory.")]
         public string? Path { get; set; }
 
         [SettingsValue(

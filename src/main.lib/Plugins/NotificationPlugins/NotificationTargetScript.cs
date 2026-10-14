@@ -55,7 +55,7 @@ namespace PKISharp.WACS.Plugins.NotificationPlugins
                 {
                     return State.DisabledState("No script configured");
                 }
-                if (!_script.ValidFile(_log))
+                if (!_client.ValidScript(_script))
                 {
                     return State.DisabledState("Invalid script configured");
                 }
