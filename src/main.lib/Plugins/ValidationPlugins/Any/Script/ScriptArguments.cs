@@ -1,4 +1,5 @@
-﻿using PKISharp.WACS.Configuration;
+﻿using PKISharp.WACS.Clients;
+using PKISharp.WACS.Configuration;
 using PKISharp.WACS.Configuration.Arguments;
 
 namespace PKISharp.WACS.Plugins.ValidationPlugins.Any
@@ -7,10 +8,11 @@ namespace PKISharp.WACS.Plugins.ValidationPlugins.Any
     {
         [CommandLine(Description = $"Path to script that handles both preparation and cleanup, " +
             $"depending on its parameters. If this parameter is provided then " +
-            $"--{nameof(ValidationPrepareScript)} and --{nameof(ValidationCleanupScript)} are ignored.")]
+            $"--{nameof(ValidationPrepareScript)} and --{nameof(ValidationCleanupScript)} are ignored. " +
+            ScriptClient.RelativePathHelp)]
         public string? ValidationScript { get; set; }
 
-        [CommandLine( Description = "Script that prepares to handle the validation challenge.")]
+        [CommandLine( Description = "Script that prepares to handle the validation challenge. " + ScriptClient.RelativePathHelp)]
         public string? ValidationPrepareScript { get; set; }
 
         [CommandLine(Description = $"Arguments passed to the preparation script. If not specified " +
@@ -18,7 +20,7 @@ namespace PKISharp.WACS.Plugins.ValidationPlugins.Any
             $"or \"{ScriptHttp.DefaultPrepareArguments}\" for HTTP challenges.")]
         public string? ValidationPrepareScriptArguments { get; set; }
 
-        [CommandLine(Description = "Script that cleans up after validation has completed.")]
+        [CommandLine(Description = "Script that cleans up after validation has completed. " + ScriptClient.RelativePathHelp)]
         public string? ValidationCleanupScript { get; set; }
 
         [CommandLine(Description = $"Arguments passed to the cleanup script. If not specified " +

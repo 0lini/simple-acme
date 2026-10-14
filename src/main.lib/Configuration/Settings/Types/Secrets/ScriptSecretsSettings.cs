@@ -21,7 +21,9 @@ namespace PKISharp.WACS.Configuration.Settings.Types.Secrets
     {
         [SettingsValue(
             SubType = "path",
-            Description = "Location of the secret getting script.")]
+            Description = "Location of the secret getting script. " +
+            "A relative path is looked up in the <code>Client.ScriptPath</code> folder, " +
+            "then in the program folder and finally in the current working directory.")]
         public string? Get { get; set; }
 
         [SettingsValue(

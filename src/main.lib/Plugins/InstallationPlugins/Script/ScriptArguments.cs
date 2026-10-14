@@ -1,11 +1,12 @@
-﻿using PKISharp.WACS.Configuration;
+﻿using PKISharp.WACS.Clients;
+using PKISharp.WACS.Configuration;
 using PKISharp.WACS.Configuration.Arguments;
 
 namespace PKISharp.WACS.Plugins.InstallationPlugins
 {
     internal class ScriptArguments : BaseArguments
     {
-        [CommandLine(Description = "Path to script file to run after retrieving the certificate. This may be any executable file or a Powershell (.ps1) script.")]
+        [CommandLine(Description = "Path to script file to run after retrieving the certificate. This may be any executable file or a Powershell (.ps1) script. " + ScriptClient.RelativePathHelp)]
         public string? Script { get; set; }
 
         [CommandLine(Description = "Parameters for the script to run after retrieving the certificate. Refer to https://simple-acme.com/reference/plugins/installation/script for further instructions.")]
