@@ -133,7 +133,7 @@ namespace PKISharp.WACS.Clients.Acme
             {
                 throw new NotSupportedException("Missing challenge type");
             }
-            return AuthorizationDecoder.DecodeChallengeValidation(auth, challenge.Type, _client.Signer);
+            return AuthorizationDecoder.DecodeChallengeValidation(auth, challenge.Type, _client.Signer, null, null);
         }
 
         /// <summary>
@@ -235,6 +235,14 @@ namespace PKISharp.WACS.Clients.Acme
             await _client.Retry(() => _client.DeactivateAuthorizationAsync(url), _log);
 
         /// <summary>
+        /// Deactivate an account
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        internal async Task<AccountDetails> DeactivateAccount() =>
+            await _client.Retry(() => _client.DeactivateAccountAsync(), _log);
+
+        /// <summary>
         /// https://tools.ietf.org/html/draft-ietf-acme-acme-12#section-7.1.3
         /// </summary>
         /// <param name="details"></param>
@@ -312,7 +320,7 @@ namespace PKISharp.WACS.Clients.Acme
         {
             var serialBytes = certificate.Certificate.SerialNumber.ToByteArray();
             var keyAuth = AuthorityKeyIdentifier.GetInstance(certificate.Certificate.GetExtensionValue(X509Extensions.AuthorityKeyIdentifier).GetOctets());
-            var keyAuthBytes = keyAuth.GetKeyIdentifier();
+            var keyAuthBytes = keyAuth.KeyIdentifier.GetOctets();
             var serial = Base64Tool.UrlEncode([.. serialBytes]);
             var keyauth = Base64Tool.UrlEncode([.. keyAuthBytes]);
             return $"{keyauth}.{serial}";
