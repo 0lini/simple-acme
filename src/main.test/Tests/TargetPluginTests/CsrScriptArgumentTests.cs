@@ -45,7 +45,7 @@ ZkoLUgEWU5OcCkq5AIpmloeaCTC/vKrlS5M3BvjEmQ==
             var input = new Mock.Services.InputService([]);
             var secretService = new SecretServiceManager(MockContainer.TestScope(), input, plugins, log);
             var argsInput = new ArgumentsInputService(log, optionsParser, input, secretService);
-            var factory = new CsrOptionsFactory(log, argsInput);
+            var factory = new CsrOptionsFactory(log, new Clients.ScriptClient(log, new MockSettingsService()), argsInput);
             return factory.Default().Result;
         }
 

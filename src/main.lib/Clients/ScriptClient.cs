@@ -3,6 +3,8 @@ using PKISharp.WACS.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,6 +19,99 @@ namespace PKISharp.WACS.Clients
 
     public partial class ScriptClient(ILogService logService, ISettings settings)
     {
+        /// <summary>
+        /// Explanation of how relative script paths are resolved, for use in help texts
+        /// </summary>
+        public const string RelativePathHelp = "A relative path is looked up in the Client.ScriptPath folder, " +
+            "then in the program folder and finally in the current working directory.";
+
+        /// <summary>
+        /// Locations that are searched (in order) for a script specified with
+        /// a relative path: first in the script path (which survives upgrades that
+        /// replace the program folder, e.g. WinGet), then relative to the .exe and
+        /// finally the current working directory, for backwards compatibility
+        /// </summary>
+        private IEnumerable<string> SearchFolders => [settings.Client.ScriptPath, VersionService.ExeDirectory, Environment.CurrentDirectory];
+
+        /// <summary>
+        /// Find the full path of a script. Absolute paths are returned as-is (when 
+        /// they exist), relative paths are first tested relative to the 
+        /// <see cref="IClientSettings.ScriptPath"/>, secondly relative to the .exe and finally 
+        /// relative to the current working directory.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns>Full path to the script, or null if it cannot be found</returns>
+        public string? ResolveScript(string? script)
+        {
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                return null;
+            }
+            try
+            {
+                var expanded = Environment.ExpandEnvironmentVariables(script);
+                if (Path.IsPathRooted(expanded))
+                {
+                    var fi = new FileInfo(expanded);
+                    return fi.Exists ? fi.FullName : null;
+                }
+                foreach (var folder in SearchFolders)
+                {
+                    if (string.IsNullOrWhiteSpace(folder))
+                    {
+                        continue;
+                    }
+                    var fi = new FileInfo(Path.Combine(folder, expanded));
+                    if (fi.Exists)
+                    {
+                        return fi.FullName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logService.Verbose("Unable to resolve script path {path}: {message}", script, ex.Message);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Test if the string represents an existing script
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns></returns>
+        public bool ValidScript([NotNullWhen(true)] string? script)
+        {
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                logService.Error("No path specified");
+                return false;
+            }
+            if (ResolveScript(script) != null)
+            {
+                return true;
+            }
+            LogNotFound(script);
+            return false;
+        }
+
+        /// <summary>
+        /// Explain where we looked for a script that could not be found
+        /// </summary>
+        /// <param name="script"></param>
+        private void LogNotFound(string script)
+        {
+            var expanded = Environment.ExpandEnvironmentVariables(script);
+            if (Path.IsPathRooted(expanded))
+            {
+                logService.Error("File {path} does not exist", expanded);
+            }
+            else
+            {
+                logService.Error("File {path} does not exist in {folders}", expanded, string.Join(" or ", SearchFolders));
+            }
+        }
+
         /// <summary>
         /// Replace {Tokens} with values defined in the replacements dictionary
         /// </summary>
@@ -87,10 +182,13 @@ namespace PKISharp.WACS.Clients
                 logService.Warning("No script configured.");
                 return new ScriptResult() { Success = false };
             }
-            if (!script.ValidFile(logService))
+            var resolved = ResolveScript(script);
+            if (resolved == null)
             {
+                LogNotFound(script);
                 return new ScriptResult() { Success = false };
             }
+            script = resolved;
             if (!string.IsNullOrWhiteSpace(parameters))
             {
                 logService.Information(LogType.All, "Script {script} starting with parameters {parameters}", script, censoredParameters ?? parameters);
@@ -231,7 +329,7 @@ namespace PKISharp.WACS.Clients
             else if (actualScript.EndsWith(".sh"))
             {
                 actualScript = "sh";
-                actualParameters = $"{script} {parameters}";
+                actualParameters = $"\"{script}\" {parameters}";
             }
             var ret = new ProcessStartInfo(actualScript)
             {

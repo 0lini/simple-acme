@@ -36,7 +36,8 @@ namespace PKISharp.WACS.UnitTests.Tests.ValidationPluginTests
             var input = new Mock.Services.InputService([]);
             var secretService = new SecretServiceManager(MockContainer.TestScope(), input, plugins, log);
             var argsInput = new ArgumentsInputService(log, optionsParser, input, secretService);
-            var x = new ScriptOptionsFactory(log, new MockSettingsService(), argsInput);
+            var settings = new MockSettingsService();
+            var x = new ScriptOptionsFactory(log, settings, new Clients.ScriptClient(log, settings), argsInput);
             return x.Default().Result;
         }
 
